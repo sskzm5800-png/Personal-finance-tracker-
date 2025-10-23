@@ -243,6 +243,35 @@ Additional documentation is available in the `/docs` folder:
 - **[SETUP.md](docs/SETUP.md)** - Detailed setup instructions for developers
 - **[Copilot-Master-Prompt.md](docs/Copilot-Master-Prompt.md)** - Original project specifications
 
+## 🖼️ Screenshots
+
+Below are placeholders for screenshots of the main application screens. Add PNG images to `docs/screenshots/` with the filenames shown and they will appear here.
+
+- Login screen
+   - ![Login Screen](docs/screenshots/login.png)
+
+- Dashboard
+   - ![Dashboard](docs/screenshots/dashboard.png)
+
+- Income panel
+   - ![Income Panel](docs/screenshots/income.png)
+
+- Expense panel
+   - ![Expense Panel](docs/screenshots/expense.png)
+
+- Summary / Charts
+   - ![Summary Chart](docs/screenshots/summary.png)
+
+- Export report (preview)
+   - ![Export Report](docs/screenshots/export.png)
+
+Guidelines:
+- Filenames (recommended): `login.png`, `dashboard.png`, `income.png`, `expense.png`, `summary.png`, `export.png`
+- Preferred image size: 1280×720 or 1024×768 for clear screenshots.
+- Use PNG for lossless quality. If you prefer not to commit images to git, add them to your global .gitignore or store them elsewhere and update the links.
+
+--
+
 ## �📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
