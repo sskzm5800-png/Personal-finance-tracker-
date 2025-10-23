@@ -1,0 +1,38 @@
+# Compiled class files
+bin/
+*.class
+
+# Package Files
+*.jar
+!lib/*.jar
+
+# IDE specific files
+.vscode/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Reports directory (generated reports)
+Reports/
+
+# Configuration with sensitive credentials
+# Only config.properties.template should be committed
+config.properties
+
+# Log files
+*.log
+
+# Backup files
+*.bak
+*~
+
+# Temporary files
+*.tmp
+*.temp

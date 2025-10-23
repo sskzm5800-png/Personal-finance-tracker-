@@ -1,0 +1,13 @@
+# Personal Finance Tracker - Database Configuration
+# MySQL 8.0 Connection Settings
+
+# Database URL (change if using different host/port)
+db.url=jdbc:mysql://localhost:3306/finance_tracker?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+
+# Database credentials (change to match your MySQL setup)
+db.username=root
+db.password=yourpassword
+
+# Connection pool settings (optional)
+db.maxConnections=10
+db.timeout=30
