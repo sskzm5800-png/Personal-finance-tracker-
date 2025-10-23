@@ -70,18 +70,19 @@ public class SummaryPanel extends JPanel {
         panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
         // Income card
-        JPanel incomeCard = createInfoCard("Total Income", "₹0.00", new Color(60, 179, 113));
-        totalIncomeLabel = (JLabel) ((JPanel) incomeCard.getComponent(1)).getComponent(0);
+    JPanel incomeCard = createInfoCard("Total Income", "₹0.00", new Color(60, 179, 113));
+    // Index 2 = valuePanel (index 1 is a Box.Filler from rigid area)
+    totalIncomeLabel = (JLabel) ((JPanel) incomeCard.getComponent(2)).getComponent(0);
         panel.add(incomeCard);
 
         // Expense card
-        JPanel expenseCard = createInfoCard("Total Expenses", "₹0.00", new Color(220, 53, 69));
-        totalExpenseLabel = (JLabel) ((JPanel) expenseCard.getComponent(1)).getComponent(0);
+    JPanel expenseCard = createInfoCard("Total Expenses", "₹0.00", new Color(220, 53, 69));
+    totalExpenseLabel = (JLabel) ((JPanel) expenseCard.getComponent(2)).getComponent(0);
         panel.add(expenseCard);
 
         // Savings card
-        JPanel savingsCard = createInfoCard("Savings", "₹0.00", new Color(70, 130, 180));
-        savingsLabel = (JLabel) ((JPanel) savingsCard.getComponent(1)).getComponent(0);
+    JPanel savingsCard = createInfoCard("Savings", "₹0.00", new Color(70, 130, 180));
+    savingsLabel = (JLabel) ((JPanel) savingsCard.getComponent(2)).getComponent(0);
         panel.add(savingsCard);
 
         return panel;

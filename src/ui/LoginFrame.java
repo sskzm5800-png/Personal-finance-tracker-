@@ -175,14 +175,13 @@ public class LoginFrame extends JFrame {
         }
 
         User user = userDAO.loginUser(username, password);
-        
+
         if (user != null) {
-            JOptionPane.showMessageDialog(this, 
-                "Welcome back, " + user.getUsername() + "!", 
-                "Login Successful", 
-                JOptionPane.INFORMATION_MESSAGE);
+            System.out.println("[LoginFrame] Login SUCCESS for user: " + user.getUsername() + " (id=" + user.getUserId() + ")");
+            // Open dashboard immediately without blocking dialog
             openDashboard(user);
         } else {
+            System.out.println("[LoginFrame] Login FAILED for username: " + username);
             showError("Invalid username or password");
         }
     }
@@ -237,9 +236,19 @@ public class LoginFrame extends JFrame {
 
     private void openDashboard(User user) {
         SwingUtilities.invokeLater(() -> {
-            DashboardFrame dashboard = new DashboardFrame(user);
-            dashboard.setVisible(true);
-            dispose();
+            try {
+                System.out.println("[LoginFrame] Opening Dashboard for user: " + user.getUsername() + " (id=" + user.getUserId() + ")");
+                DashboardFrame dashboard = new DashboardFrame(user);
+                dashboard.setVisible(true);
+                // Only dispose login after dashboard is visible
+                dispose();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this,
+                    "Failed to open Dashboard: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
         });
     }
 
