@@ -140,29 +140,244 @@ public class DashboardFrame extends JFrame {
     }
 
     private JPanel createWelcomePanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
+        JPanel panel = new JPanel(new BorderLayout(15, 15));
         panel.setBackground(new Color(35, 35, 35));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(20, 20, 20, 20);
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel welcomeMsg = new JLabel("<html><center>" +
-            "<h1 style='color: white;'>Welcome to Personal Finance Tracker!</h1>" +
-            "<p style='color: #B0B0B0; font-size: 16px;'>Select a module from the left menu to get started:</p>" +
-            "<ul style='color: #B0B0B0; font-size: 14px; text-align: left;'>" +
-            "<li><b>Income:</b> Track your earnings and sources of income</li>" +
-            "<li><b>Expenses:</b> Monitor your spending and categorize costs</li>" +
-            "<li><b>Summary:</b> View detailed financial reports and charts</li>" +
-            "</ul>" +
-            "<p style='color: #70A0FF; font-size: 14px; margin-top: 30px;'>" +
-            "Start managing your finances smartly today!" +
-            "</p>" +
-            "</center></html>");
+        // Top section - Welcome message and quick stats
+        JPanel topSection = new JPanel(new BorderLayout());
+        topSection.setBackground(new Color(35, 35, 35));
+
+        // Welcome header
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        headerPanel.setBackground(new Color(35, 35, 35));
         
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(welcomeMsg, gbc);
+        JLabel welcomeLabel = new JLabel("<html><h1 style='color: white;'>Welcome back, " + 
+            (currentUser.getUserId() == -1 ? "Guest" : currentUser.getUsername()) + "!</h1></html>");
+        headerPanel.add(welcomeLabel);
+        topSection.add(headerPanel, BorderLayout.NORTH);
+
+        // Quick stats cards
+        JPanel statsPanel = new JPanel(new GridLayout(1, 3, 20, 0));
+        statsPanel.setBackground(new Color(35, 35, 35));
+        statsPanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+
+        if (currentUser.getUserId() != -1) {
+            // Get financial summary
+            service.FinanceService financeService = new service.FinanceService();
+            java.util.Map<String, java.math.BigDecimal> summary = financeService.getFinancialSummary(currentUser.getUserId());
+            
+            java.math.BigDecimal income = summary.getOrDefault("totalIncome", java.math.BigDecimal.ZERO);
+            java.math.BigDecimal expenses = summary.getOrDefault("totalExpenses", java.math.BigDecimal.ZERO);
+            java.math.BigDecimal savings = summary.getOrDefault("savings", java.math.BigDecimal.ZERO);
+
+            statsPanel.add(createQuickStatCard("Total Income", "₹" + String.format("%,.2f", income), new Color(60, 179, 113), "💰"));
+            statsPanel.add(createQuickStatCard("Total Expenses", "₹" + String.format("%,.2f", expenses), new Color(220, 53, 69), "💸"));
+            statsPanel.add(createQuickStatCard("Savings", "₹" + String.format("%,.2f", savings), new Color(70, 130, 180), "💵"));
+        } else {
+            statsPanel.add(createQuickStatCard("Guest Mode", "Data not saved", new Color(128, 128, 128), "👤"));
+            statsPanel.add(createQuickStatCard("Quick Start", "Add Income/Expenses", new Color(70, 130, 180), "⚡"));
+            statsPanel.add(createQuickStatCard("Try it Out", "Explore features", new Color(60, 179, 113), "🚀"));
+        }
+
+        topSection.add(statsPanel, BorderLayout.CENTER);
+        panel.add(topSection, BorderLayout.NORTH);
+
+        // Center section - Recent activity and quick actions
+        JPanel centerSection = new JPanel(new GridLayout(1, 2, 20, 0));
+        centerSection.setBackground(new Color(35, 35, 35));
+
+        // Recent transactions panel
+        JPanel recentPanel = createRecentTransactionsPanel();
+        centerSection.add(recentPanel);
+
+        // Quick actions panel
+        JPanel actionsPanel = createQuickActionsPanel();
+        centerSection.add(actionsPanel);
+
+        panel.add(centerSection, BorderLayout.CENTER);
 
         return panel;
+    }
+
+    private JPanel createQuickStatCard(String title, String value, Color color, String emoji) {
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBackground(new Color(45, 45, 45));
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(color, 3),
+            BorderFactory.createEmptyBorder(20, 15, 20, 15)
+        ));
+
+        JLabel emojiLabel = new JLabel(emoji);
+        emojiLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 36));
+        emojiLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        titleLabel.setForeground(new Color(180, 180, 180));
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel valueLabel = new JLabel(value);
+        valueLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        valueLabel.setForeground(color);
+        valueLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        card.add(emojiLabel);
+        card.add(Box.createRigidArea(new Dimension(0, 10)));
+        card.add(titleLabel);
+        card.add(Box.createRigidArea(new Dimension(0, 5)));
+        card.add(valueLabel);
+
+        return card;
+    }
+
+    private JPanel createRecentTransactionsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(45, 45, 45));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(70, 130, 180), 2),
+            BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        ));
+
+        JLabel titleLabel = new JLabel("📊 Recent Activity");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setForeground(Color.WHITE);
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        JTextArea activityArea = new JTextArea();
+        activityArea.setEditable(false);
+        activityArea.setBackground(new Color(35, 35, 35));
+        activityArea.setForeground(new Color(200, 200, 200));
+        activityArea.setFont(new Font("Consolas", Font.PLAIN, 12));
+        activityArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        if (currentUser.getUserId() != -1) {
+            dao.IncomeDAO incomeDAO = new dao.IncomeDAO();
+            dao.ExpenseDAO expenseDAO = new dao.ExpenseDAO();
+            
+            java.util.List<model.Income> recentIncomes = incomeDAO.getIncomesByUserId(currentUser.getUserId());
+            java.util.List<model.Expense> recentExpenses = expenseDAO.getExpensesByUserId(currentUser.getUserId());
+
+            StringBuilder activity = new StringBuilder();
+            activity.append("💰 Recent Income:\n");
+            int incomeCount = Math.min(3, recentIncomes.size());
+            for (int i = 0; i < incomeCount; i++) {
+                model.Income inc = recentIncomes.get(i);
+                activity.append(String.format("  • %s - ₹%,.2f (%s)\n", 
+                    inc.getCategory(), inc.getAmount(), inc.getDate()));
+            }
+            
+            activity.append("\n💸 Recent Expenses:\n");
+            int expenseCount = Math.min(3, recentExpenses.size());
+            for (int i = 0; i < expenseCount; i++) {
+                model.Expense exp = recentExpenses.get(i);
+                activity.append(String.format("  • %s - ₹%,.2f (%s)\n", 
+                    exp.getCategory(), exp.getAmount(), exp.getDate()));
+            }
+
+            if (incomeCount == 0 && expenseCount == 0) {
+                activity.append("\nNo transactions yet.\nStart by adding income or expenses!");
+            }
+
+            activityArea.setText(activity.toString());
+        } else {
+            activityArea.setText("Guest Mode - Add transactions to see activity here!");
+        }
+
+        JScrollPane scrollPane = new JScrollPane(activityArea);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel createQuickActionsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(45, 45, 45));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(70, 130, 180), 2),
+            BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        ));
+
+        JLabel titleLabel = new JLabel("⚡ Quick Actions");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setForeground(Color.WHITE);
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
+        buttonsPanel.setBackground(new Color(45, 45, 45));
+        buttonsPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
+
+        // Quick action buttons
+        JButton addIncomeBtn = createQuickActionButton("➕ Add Income", new Color(60, 179, 113));
+        addIncomeBtn.addActionListener(e -> cardLayout.show(contentPanel, "Income"));
+        buttonsPanel.add(addIncomeBtn);
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+
+        JButton addExpenseBtn = createQuickActionButton("➕ Add Expense", new Color(220, 53, 69));
+        addExpenseBtn.addActionListener(e -> cardLayout.show(contentPanel, "Expense"));
+        buttonsPanel.add(addExpenseBtn);
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+
+        JButton viewSummaryBtn = createQuickActionButton("📊 View Summary", new Color(70, 130, 180));
+        viewSummaryBtn.addActionListener(e -> cardLayout.show(contentPanel, "Summary"));
+        buttonsPanel.add(viewSummaryBtn);
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+
+        JButton refreshBtn = createQuickActionButton("🔄 Refresh Dashboard", new Color(100, 100, 100));
+        refreshBtn.addActionListener(e -> refreshDashboard());
+        buttonsPanel.add(refreshBtn);
+
+        // Tips section
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+        JLabel tipsLabel = new JLabel("<html><div style='color: #B0B0B0; padding: 10px;'>" +
+            "<b>💡 Tips:</b><br>" +
+            "• Track every expense<br>" +
+            "• Review monthly summaries<br>" +
+            "• Export reports regularly<br>" +
+            "• Set savings goals</div></html>");
+        tipsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        buttonsPanel.add(tipsLabel);
+
+        panel.add(buttonsPanel, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JButton createQuickActionButton(String text, Color bgColor) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setBackground(bgColor);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setAlignmentX(Component.LEFT_ALIGNMENT);
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(bgColor.brighter());
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(bgColor);
+            }
+        });
+
+        return button;
+    }
+
+    private void refreshDashboard() {
+        // Refresh the welcome panel by recreating it
+        contentPanel.remove(0); // Remove old welcome panel
+        contentPanel.add(createWelcomePanel(), "Welcome", 0);
+        cardLayout.show(contentPanel, "Welcome");
+        JOptionPane.showMessageDialog(this, "Dashboard refreshed!", "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void handleLogout() {

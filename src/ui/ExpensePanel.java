@@ -242,17 +242,22 @@ public class ExpensePanel extends JPanel {
 
             Date date = Date.valueOf(dateStr);
 
+            // Show loading cursor
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
             if (currentUser.getUserId() == -1) {
                 // Guest mode
                 Expense expense = new Expense(-1, category, amount, date, notes);
                 expense.setExpenseId(guestExpenses.size() + 1);
                 guestExpenses.add(expense);
-                JOptionPane.showMessageDialog(this, "Expense added (Guest Mode - Not saved to database)");
+                JOptionPane.showMessageDialog(this, "✓ Expense added successfully!\n(Guest Mode - Not saved to database)", 
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 // Regular user
                 Expense expense = new Expense(currentUser.getUserId(), category, amount, date, notes);
                 if (expenseDAO.addExpense(expense)) {
-                    JOptionPane.showMessageDialog(this, "Expense added successfully!");
+                    JOptionPane.showMessageDialog(this, "✓ Expense added successfully!", 
+                        "Success", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     showError("Failed to add expense");
                     return;
@@ -268,6 +273,8 @@ public class ExpensePanel extends JPanel {
             showError("Invalid date format. Use YYYY-MM-DD");
         } catch (Exception e) {
             showError("Error adding expense: " + e.getMessage());
+        } finally {
+            setCursor(Cursor.getDefaultCursor());
         }
     }
 

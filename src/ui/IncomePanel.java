@@ -241,17 +241,22 @@ public class IncomePanel extends JPanel {
 
             Date date = Date.valueOf(dateStr);
 
+            // Show loading cursor
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
             if (currentUser.getUserId() == -1) {
                 // Guest mode
                 Income income = new Income(-1, category, amount, date, notes);
                 income.setIncomeId(guestIncomes.size() + 1);
                 guestIncomes.add(income);
-                JOptionPane.showMessageDialog(this, "Income added (Guest Mode - Not saved to database)");
+                JOptionPane.showMessageDialog(this, "✓ Income added successfully!\n(Guest Mode - Not saved to database)", 
+                    "Success", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 // Regular user
                 Income income = new Income(currentUser.getUserId(), category, amount, date, notes);
                 if (incomeDAO.addIncome(income)) {
-                    JOptionPane.showMessageDialog(this, "Income added successfully!");
+                    JOptionPane.showMessageDialog(this, "✓ Income added successfully!", 
+                        "Success", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     showError("Failed to add income");
                     return;
@@ -267,6 +272,8 @@ public class IncomePanel extends JPanel {
             showError("Invalid date format. Use YYYY-MM-DD");
         } catch (Exception e) {
             showError("Error adding income: " + e.getMessage());
+        } finally {
+            setCursor(Cursor.getDefaultCursor());
         }
     }
 
